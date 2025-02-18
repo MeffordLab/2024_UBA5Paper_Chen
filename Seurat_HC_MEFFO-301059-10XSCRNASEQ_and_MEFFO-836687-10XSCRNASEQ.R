@@ -1,8 +1,9 @@
-# Analyzing HChen's scRNAseq data (10X)
-# Following import commands from: https://support.parsebiosciences.com/hc/en-us/articles/360053078092-Seurat-Tutorial-65k-PBMCs
+# Analyzing HChen's scRNAseq data (10X) from human cortical spheroids
 # November 11, 2024
 # Christy LaFlamme
-
+##########################################################################################
+# LOAD LIBRARIES
+##########################################################################################
 library(Seurat) # version 5.1.0
 library(dplyr)
 library(Matrix)
@@ -13,13 +14,9 @@ library(SeuratObject)
 library(SeuratData)
 library(multtest)
 library(metap)
-library(stringr) # added on to manipulate text strings with regular expressions to filter out specific genes
-
-##### MAIN GOAL OF THIS SCRIPT IS TO COMBINE ACROSS T1/T2/D1 AND FILTER OVER FOXG1 EXPRESSION############
-
+library(stringr)
 ##########################################################################################
-# define all the functions used
-
+# FUNCTIONS
 ##########################################################################################
 # function to remove lowly expressed gene from raw Seurat object
 removeLowlyExpGenes <- function(raw, number = 1) {
@@ -38,7 +35,6 @@ removeLowlyExpGenes <- function(raw, number = 1) {
   # return the raw Seurat object
   return(raw)
 }
-
 ##########################################################################################
 # function to remove genes starting with ^ENSG and ^LINC from the raw count matrix Seurat object
 removeENSGandLINCGenes <- function(raw) {
@@ -72,7 +68,6 @@ removeENSGandLINCGenes <- function(raw) {
   # return the raw Seurat object
   return(raw.ensg.linc.removed)
 }
-
 ##################################################
 # create Seurat Object function to load 10X data into a raw seurat object and perform QC
 
@@ -121,7 +116,6 @@ createSO <- function(data, project) {
   # return the raw seurat object
   return(raw)
 }
-
 ##################################################
 # normSO to normalize Seurat objects
 
@@ -182,7 +176,6 @@ normSO <- function(raw){
   
   # return the norm object
   return(norm)
-  
 }
 
 # function for quick within sample umap clustering
@@ -212,9 +205,8 @@ clusterSO <- function(norm, dims = 30){
   write.table(top40, file = "./ManuscriptFilters_cluster_markers_top40.txt", sep = "\t", quote = F, row.names = F)
   
   return(norm)
-  
 }
-
+##################################################
 # function for selecting the top number of genes from marker gene list
 # select the number of genes to be selected for each cluster on which to perform cell type identity
 # for clusters starting with zero!
@@ -236,7 +228,7 @@ clusterSO <- function(norm, dims = 30){
 #   return(topX)
 #   
 # }
-
+##################################################
 # for clusters starting with one!!!
 topXgenes <- function(markers, log2FC.column = 2, cluster.column = 6, LFCcutoff = 1, padjcutoff = 0.05, numbergenes = 40) {
   
@@ -256,10 +248,6 @@ topXgenes <- function(markers, log2FC.column = 2, cluster.column = 6, LFCcutoff 
   return(topX)
   
 }
-
-
-
-
 ##########################################################################################################################################################
 # Load the data from 10X
 ##################################################
@@ -299,7 +287,6 @@ norm1 <- normSO(raw1)
 norm1 <- readRDS("./2611942_HC021_norm.RDS")
 norm.umap1 <- clusterSO(norm1, dims = 30)
 # saveRDS(norm.umap1, "./2611942_HC021_norm.umap.RDS")
-
 
 ##################################################
 # PROBAND FROM FAMILY #2
@@ -348,7 +335,7 @@ norm.umap34 <- clusterSO(norm34, dims = 30)
 saveRDS(norm.umap34, "./HC067_and_HC070_norm.umap.RDS")
 
 ############################################
-# redo after filtering based on FOXG1 > 0
+# filter based on FOXG1 > 0
 ############################################
 setwd("/research_jude/rgs01_jude/groups/meffogrp/projects/EpilepsyOmics/common/10X/MEFFO-301059-10XSCRNASEQ_and_MEFFO-836687-10XSCRNASEQ/HC067_HC070_merged_FOXG1_filtered_output/")
 norm.foxg1 <- subset(x = norm, subset = FOXG1 > 0)
@@ -553,7 +540,6 @@ hist(foxg1$FOXG1)
 # foxg1 data
 uba5_data <- FetchData(norm.combined, vars = "UBA5") 
 hist(uba5_data$rna_UBA5)
-
 
 # individual level
 
